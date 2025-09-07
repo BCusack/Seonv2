@@ -1,7 +1,42 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { GoogleGenAI } from "@google/genai";
 
 const App: React.FC = () => {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const generateLogo = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+        const response = await ai.models.generateImages({
+          model: 'imagen-4.0-generate-001',
+          prompt: 'A minimalist and abstract logo for a futuristic AI companion named "Seon". The design should evoke the concepts of a watchful eye (observation) and interconnected data points (personalization). Use a sleek, monochrome color palette on a dark background. The logo should be clean, scalable, and suitable for a favicon. Vector art style.',
+          config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/png',
+            aspectRatio: '1:1',
+          },
+        });
+
+        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+        const imageUrl = `data:image/png;base64,${base64ImageBytes}`;
+        setLogoUrl(imageUrl);
+      } catch (e) {
+        console.error(e);
+        setError('Failed to generate logo.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    generateLogo();
+  }, []);
+
   // A new, mathematically correct SVG path for a perfectly tileable honeycomb mesh.
   // This path draws a central hexagon and the necessary connecting lines to its neighbors,
   // ensuring a seamless pattern when repeated.
@@ -26,6 +61,25 @@ const App: React.FC = () => {
 
         {/* Hero Section */}
         <header className="text-center max-w-4xl mx-auto mb-24 md:mb-32">
+          <div className="flex justify-center mb-8" aria-live="polite">
+            {isLoading && (
+              <div className="w-32 h-32 flex items-center justify-center bg-neutral-900/50 rounded-full animate-pulse" role="status">
+                <svg className="animate-spin h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="sr-only">Generating logo...</span>
+              </div>
+            )}
+            {error && (
+              <div className="w-32 h-32 flex items-center justify-center bg-red-900/20 border border-red-500/30 rounded-full text-red-400 text-center p-4" role="alert">
+                <p>{error}</p>
+              </div>
+            )}
+            {logoUrl && !isLoading && (
+              <img src={logoUrl} alt="Seon AI Logo" className="w-32 h-32 rounded-full shadow-lg shadow-gray-900/50" />
+            )}
+          </div>
           <h1 className="text-5xl md:text-7xl font-semibold tracking-tight mb-4">
             {/* Monochromatic gradient for a sleek, modern look */}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-50 to-gray-400">
