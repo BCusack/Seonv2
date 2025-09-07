@@ -55,7 +55,7 @@ const App: React.FC = () => {
         <section className="py-20 md:py-28 grid md:grid-cols-2 gap-16 items-center">
           <div className="md:pr-12">
             <h3 className="text-base font-semibold tracking-wider text-gray-500 uppercase">
-              Hyper-Personalized
+              Hyper-Personalised
             </h3>
             <h2 className="text-3xl md:text-4xl font-semibold mt-2 mb-4">
               A True Extension of You
